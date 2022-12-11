@@ -9,7 +9,7 @@ internal abstract class BaseDay
     public void Solve(bool test)
     {
         string day = GetType().Name[^2..];
-        var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Environment.CurrentDirectory;
+        var path = Path.GetDirectoryName(AppContext.BaseDirectory) ?? Environment.CurrentDirectory;
         var inputpath = Path.Combine(test ? "InputTest" : "Input", $"Day{day}.txt");
         var inputfile = Path.Combine(path, inputpath);
 
