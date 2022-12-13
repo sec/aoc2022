@@ -2,9 +2,6 @@
 
 internal class Day13 : BaseDay
 {
-    const string DIV_2 = "[[2]]";
-    const string DIV_6 = "[[6]]";
-
     enum PacketStatus
     {
         InOrder = -1,
@@ -66,56 +63,52 @@ internal class Day13 : BaseDay
         }
     }
 
-    record IntItem(int Value) : Item;
+    record IntItem(int Value) : Item, IComparable
+    {
+        public int CompareTo(object? obj)
+        {
+            if (obj is null || obj is not IntItem other)
+            {
+                throw new NotImplementedException();
+            }
 
-    record ListItem(List<Item> Items) : Item
+            return Value.CompareTo(other.Value);
+        }
+    }
+
+    record ListItem(List<Item> Items) : Item, IComparable
     {
         public int Count => Items.Count;
 
-        public Item this[int index] => Items[index];
-    }
-
-    class PacketComparer : IComparer<string>
-    {
-        public static readonly PacketComparer Instance = new();
-
-        public int Compare(string? x, string? y)
+        public int CompareTo(object? obj)
         {
-            var left = Item.Spawn(x) as ListItem;
-            var right = Item.Spawn(y) as ListItem;
-
-            ArgumentNullException.ThrowIfNull(left);
-            ArgumentNullException.ThrowIfNull(right);
-
-            return (int) Compare(left, right);
-        }
-
-        static PacketStatus Compare(ListItem left, ListItem right)
-        {
-            for (var index = 0; index < left.Count; index++)
+            if (obj is null || obj is not ListItem other)
             {
-                if (index >= right.Count)
+                throw new NotImplementedException();
+            }
+
+            for (var index = 0; index < Count; index++)
+            {
+                if (index >= other.Count)
                 {
-                    return PacketStatus.OutOfOrder;
+                    return (int) PacketStatus.OutOfOrder;
                 }
 
-                var a = left[index];
-                var b = right[index];
+                var a = Items[index];
+                var b = other.Items[index];
 
                 if (a is IntItem aa && b is IntItem bb)
                 {
-                    // both numbers
-                    var comp = aa.Value.CompareTo(bb.Value);
-                    if (comp != 0)
+                    var flag = aa.CompareTo(bb);
+                    if (flag is not (int) PacketStatus.Equal)
                     {
-                        return (PacketStatus) comp;
+                        return flag;
                     }
                 }
                 else if (a is ListItem abc && b is ListItem def)
                 {
-                    // both array's
-                    var flag = Compare(abc, def);
-                    if (flag != PacketStatus.Equal)
+                    var flag = abc.CompareTo(def);
+                    if (flag is not (int) PacketStatus.Equal)
                     {
                         return flag;
                     }
@@ -130,12 +123,11 @@ internal class Day13 : BaseDay
                     {
                         q = new ListItem(new List<Item>() { b });
                     }
-
-                    return Compare(p, q);
+                    return p.CompareTo(q);
                 }
             }
 
-            return left.Count == right.Count ? PacketStatus.Equal : PacketStatus.InOrder;
+            return Count == other.Count ? (int) PacketStatus.Equal : (int) PacketStatus.InOrder;
         }
     }
 
@@ -145,16 +137,23 @@ internal class Day13 : BaseDay
 
         return ReadAllLines(true)
             .Chunk(2)
-            .Select(chunk => new { Index = index++, Status = PacketComparer.Instance.Compare(chunk[0], chunk[1]) })
-            .Where(x => x.Status == (int) PacketStatus.InOrder)
+            .Select(chunk => new { Index = index++, One = (ListItem) Item.Spawn(chunk[0]), Two = (ListItem) Item.Spawn(chunk[1]) })
+            .Where(x => x.One.CompareTo(x.Two) == (int) PacketStatus.InOrder)
             .Sum(x => x.Index);
     }
 
     protected override object Part2()
     {
-        var packets = ReadAllLines(true).Union(new[] { DIV_2, DIV_6 }).ToList();
-        packets.Sort(PacketComparer.Instance);
+        var div2 = new ListItem(new List<Item>() { new IntItem(2) });
+        var div6 = new ListItem(new List<Item>() { new IntItem(6) });
 
-        return (1 + packets.IndexOf(DIV_2)) * (1 + packets.IndexOf(DIV_6));
+        var packets = ReadAllLines(true)
+            .Select(x => Item.Spawn(x))
+            .Union(new[] { div2, div6 })
+            .ToList();
+
+        packets.Sort();
+
+        return (1 + packets.IndexOf(div2)) * (1 + packets.IndexOf(div6));
     }
 }
