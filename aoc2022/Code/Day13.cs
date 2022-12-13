@@ -1,9 +1,10 @@
-﻿using System.Text.Json;
-
-namespace aoc2022.Code;
+﻿namespace aoc2022.Code;
 
 internal class Day13 : BaseDay
 {
+    const string DIV_2 = "[[2]]";
+    const string DIV_6 = "[[6]]";
+
     enum PacketStatus
     {
         InOrder = -1,
@@ -11,84 +12,140 @@ internal class Day13 : BaseDay
         Equal = 0
     }
 
-    const string DIV_2 = "[[2]]";
-    const string DIV_6 = "[[6]]";
-
-    static PacketStatus Compare(List<JsonElement> left, List<JsonElement> right)
+    abstract record Item
     {
-        for (var index = 0; index < left.Count; index++)
+        public static Item Spawn(ReadOnlySpan<char> input)
         {
-            if (index >= right.Count)
-            {
-                return PacketStatus.OutOfOrder;
-            }
+            var items = new List<Item>();
 
-            var a = left[index];
-            var b = right[index];
-
-            if (a.ValueKind == JsonValueKind.Number && b.ValueKind == a.ValueKind)
+            var i = 0;
+            while (i < input.Length)
             {
-                // both numbers
-                var comp = a.GetInt32().CompareTo(b.GetInt32());
-                if (comp != 0)
+                if (input[i] == '[')
                 {
-                    return (PacketStatus) comp;
+                    i++;
+
+                    var count = 1;
+                    var start = i;
+
+                    while (count > 0)
+                    {
+                        var c = input[i++];
+                        if (c == '[')
+                        {
+                            count++;
+                        }
+                        else if (c == ']')
+                        {
+                            count--;
+                        }
+                    }
+                    var list = input[start..(i - 1)];
+
+                    items.Add(Spawn(list));
+
+                    i++; // after ']' there's ','
+                }
+                else
+                {
+                    var start = i;
+                    while (i < input.Length && char.IsDigit(input[i]))
+                    {
+                        i++;
+                    }
+                    var number = input[start..i];
+                    var parsed = int.Parse(number);
+
+                    items.Add(new IntItem(parsed));
+
+                    i++; // after ']' there's ','
                 }
             }
-            else if (a.ValueKind == JsonValueKind.Array && b.ValueKind == a.ValueKind)
-            {
-                // both array's
-                var abc = a.EnumerateArray().ToList();
-                var def = b.EnumerateArray().ToList();
 
-                var flag = Compare(abc, def);
-                if (flag != PacketStatus.Equal)
-                {
-                    return flag;
-                }
-            }
-            else
-            {
-                // one array, one number
-                var abc = JsonElementToList(a);
-                var def = JsonElementToList(b);
-
-                // can we do return Compare(abc, def); in here?
-                var flag = Compare(abc, def);
-                if (flag != PacketStatus.Equal)
-                {
-                    return flag;
-                }
-            }
+            return new ListItem(items);
         }
+    }
 
-        return left.Count == right.Count ? PacketStatus.Equal : PacketStatus.InOrder;
+    record IntItem(int Value) : Item;
 
-        static List<JsonElement> JsonElementToList(JsonElement src) => src.ValueKind == JsonValueKind.Array ? src.EnumerateArray().ToList() : new List<JsonElement> { src };
+    record ListItem(List<Item> Items) : Item
+    {
+        public int Count => Items.Count;
+
+        public Item this[int index] => Items[index];
     }
 
     class PacketComparer : IComparer<string>
     {
+        public static readonly PacketComparer Instance = new();
+
         public int Compare(string? x, string? y)
         {
-            var left = JsonSerializer.Deserialize<List<JsonElement>>(x ?? string.Empty);
-            var right = JsonSerializer.Deserialize<List<JsonElement>>(y ?? string.Empty);
+            var left = Item.Spawn(x) as ListItem;
+            var right = Item.Spawn(y) as ListItem;
 
             ArgumentNullException.ThrowIfNull(left);
             ArgumentNullException.ThrowIfNull(right);
 
-            return (int) Day13.Compare(left, right);
+            return (int) Compare(left, right);
+        }
+
+        static PacketStatus Compare(ListItem left, ListItem right)
+        {
+            for (var index = 0; index < left.Count; index++)
+            {
+                if (index >= right.Count)
+                {
+                    return PacketStatus.OutOfOrder;
+                }
+
+                var a = left[index];
+                var b = right[index];
+
+                if (a is IntItem aa && b is IntItem bb)
+                {
+                    // both numbers
+                    var comp = aa.Value.CompareTo(bb.Value);
+                    if (comp != 0)
+                    {
+                        return (PacketStatus) comp;
+                    }
+                }
+                else if (a is ListItem abc && b is ListItem def)
+                {
+                    // both array's
+                    var flag = Compare(abc, def);
+                    if (flag != PacketStatus.Equal)
+                    {
+                        return flag;
+                    }
+                }
+                else
+                {
+                    if (a is not ListItem p)
+                    {
+                        p = new ListItem(new List<Item>() { a });
+                    }
+                    if (b is not ListItem q)
+                    {
+                        q = new ListItem(new List<Item>() { b });
+                    }
+
+                    return Compare(p, q);
+                }
+            }
+
+            return left.Count == right.Count ? PacketStatus.Equal : PacketStatus.InOrder;
         }
     }
 
     protected override object Part1()
     {
         var index = 1;
-        var comp = new PacketComparer();
 
         return ReadAllLines(true)
             .Chunk(2)
-            .Select(chunk => new { Index = index++, Status = comp.Compare(chunk[0], chunk[1]) })
+            .Select(chunk => new { Index = index++, Status = PacketComparer.Instance.Compare(chunk[0], chunk[1]) })
             .Where(x => x.Status == (int) PacketStatus.InOrder)
             .Sum(x => x.Index);
     }
@@ -96,7 +153,7 @@ internal class Day13 : BaseDay
     protected override object Part2()
     {
         var packets = ReadAllLines(true).Union(new[] { DIV_2, DIV_6 }).ToList();
-        packets.Sort(new PacketComparer());
+        packets.Sort(PacketComparer.Instance);
 
         return (1 + packets.IndexOf(DIV_2)) * (1 + packets.IndexOf(DIV_6));
     }
