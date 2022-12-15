@@ -46,7 +46,7 @@ internal abstract class BaseDay
 
     protected string ReadAllText() => _input;
 
-    protected string[] ReadAllLines(bool removeEmpty = false) => _input.Split(Environment.NewLine, removeEmpty ? StringSplitOptions.RemoveEmptyEntries : StringSplitOptions.None);
+    protected string[] ReadAllLines(bool removeEmpty = false) => _input.Split(Environment.NewLine.ToCharArray(), removeEmpty ? StringSplitOptions.RemoveEmptyEntries : StringSplitOptions.None);
 
     protected string[] ReadAllTextSplit(string chars) => ReadAllText().Split(chars.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 

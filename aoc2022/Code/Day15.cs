@@ -22,6 +22,24 @@ internal partial class Day15 : BaseDay
             Beacon = new(bx, by);
             Distance = Location.ManhattanDistance(Beacon);
         }
+
+        public IEnumerable<Point> Border(int border)
+        {
+            for (var y = Location.Y - Distance; y < Location.Y + Distance; y++)
+            {
+                for (var x = Location.X - Distance; x < Location.X + Distance; x++)
+                {
+                    if (x >= 0 && x <= border && y >= 0 && y <= border)
+                    {
+                        var px = new Point(x, y);
+                        if (px.ManhattanDistance(Location) - 1 == Distance)
+                        {
+                            yield return px;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     List<Sensor> ParseInput(out int magic)
@@ -79,12 +97,14 @@ internal partial class Day15 : BaseDay
         var result = 0L;
         var sensors = ParseInput(out var _);
 
-        Parallel.For(0, magic, (y, loop) =>
+        Parallel.ForEach(sensors, (i, loop) =>
         {
-            for (var x = 0; x < magic; x++)
+            foreach (var p in i.Border(magic))
             {
-                var p = new Point(x, y);
-
+                if (loop.ShouldExitCurrentIteration)
+                {
+                    break;
+                }
                 var flag = true;
                 foreach (var sensor in sensors)
                 {
@@ -96,8 +116,7 @@ internal partial class Day15 : BaseDay
                 }
                 if (flag)
                 {
-                    result = x * 4_000_000L + y;
-
+                    result = p.X * 4_000_000L + p.Y;
                     loop.Stop();
                 }
             }
