@@ -1,4 +1,6 @@
-﻿namespace aoc2022.Code;
+﻿using System.Runtime.CompilerServices;
+
+namespace aoc2022.Code;
 
 internal partial class Day15 : BaseDay
 {
@@ -25,20 +27,49 @@ internal partial class Day15 : BaseDay
 
         public IEnumerable<Point> Border(int border)
         {
-            for (var y = Location.Y - Distance; y < Location.Y + Distance; y++)
+            var topY = Location.Y - Distance - 1;
+            var bottomY = Location.Y + Distance + 1;
+            var leftX = Location.X - Distance - 1;
+            var rightX = Location.X + Distance + 1;
+
+            for (int y = Location.Y, x = leftX; y >= topY && x <= Location.X; y--, x++)
             {
-                for (var x = Location.X - Distance; x < Location.X + Distance; x++)
+                if (GetPoint(x, y, border, out var px))
                 {
-                    if (x >= 0 && x <= border && y >= 0 && y <= border)
-                    {
-                        var px = new Point(x, y);
-                        if (px.ManhattanDistance(Location) - 1 == Distance)
-                        {
-                            yield return px;
-                        }
-                    }
+                    yield return px;
                 }
             }
+
+            for (int y = bottomY, x = Location.X; y >= Location.Y && x <= rightX; y--, x++)
+            {
+                if (GetPoint(x, y, border, out var px))
+                {
+                    yield return px;
+                }
+            }
+
+            for (int y = topY, x = Location.X; y <= Location.Y && x <= rightX; y++, x++)
+            {
+                if (GetPoint(x, y, border, out var px))
+                {
+                    yield return px;
+                }
+            }
+
+            for (int y = Location.Y, x = leftX; y <= bottomY && x <= Location.X; y++, x++)
+            {
+                if (GetPoint(x, y, border, out var px))
+                {
+                    yield return px;
+                }
+            }
+        }
+
+        bool GetPoint(int x, int y, int border, out Point px)
+        {
+            px = new Point(x, y);
+
+            return (x >= 0 && x <= border && y >= 0 && y <= border && px.ManhattanDistance(Location) - 1 == Distance);
         }
     }
 
