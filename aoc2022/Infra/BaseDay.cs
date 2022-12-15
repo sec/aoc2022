@@ -5,6 +5,7 @@ namespace aoc2022.Infra;
 internal abstract class BaseDay
 {
     private string _input = string.Empty;
+    protected bool _testRun;
 
     public void Solve(bool test)
     {
@@ -15,6 +16,7 @@ internal abstract class BaseDay
 
         if (File.Exists(inputfile))
         {
+            _testRun = test;
             _input = File.ReadAllText(inputfile);
             if (!string.IsNullOrWhiteSpace(_input))
             {
