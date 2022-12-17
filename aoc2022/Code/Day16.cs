@@ -201,7 +201,7 @@ internal class Day16 : BaseDay
             Parallel.ForEach(states, state => Parallel.ForEach(state.GetNextState(minute, useElephant), next => newStates.Add(next)));
 
             states.Clear();
-            foreach (var ns in newStates)
+            foreach (var ns in newStates.OrderByDescending(x => x.Pressure).Take(10_000))
             {
                 var id = ns.ToString();
                 if (!hash.Contains(id))
