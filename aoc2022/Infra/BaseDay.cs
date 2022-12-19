@@ -23,11 +23,11 @@ internal abstract class BaseDay
                 Console.WriteLine($"{(test ? "Test" : "Real")} #{day}");
 
                 var time1 = TimeIt(Part1, out var part1);
-                Console.WriteLine($"Part 1 [{time1}ms]");
+                Console.WriteLine($"Part 1 [{time1}ms, {time1 / 1000}s, {time1 / (1000 * 60)}min]");
                 Console.WriteLine($"\t{part1}");
 
                 var time2 = TimeIt(Part2, out var part2);
-                Console.WriteLine($"Part 2 [{time2}ms]");
+                Console.WriteLine($"Part 2 [{time2}ms, {time2 / 1000}s, {time2 / (1000 * 60)}min]");
                 Console.WriteLine($"\t{part2}");
 
                 Console.WriteLine();

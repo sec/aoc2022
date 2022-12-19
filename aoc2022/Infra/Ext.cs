@@ -53,4 +53,12 @@ internal static class Ext
             ++i;
         }
     }
+
+    public static T[] CopyArray<T>(T[] array)
+    {
+        var result = new T[array.Length];
+        Array.Copy(array, result, array.Length);
+
+        return result;
+    }
 }
