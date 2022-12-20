@@ -2,7 +2,7 @@
 
 internal class Day20 : BaseDay
 {
-    record Mix(long Number, Guid Id);
+    record Mix(long Number, int Id);
 
     static void Cycle(List<Mix> list, int times)
     {
@@ -59,7 +59,7 @@ internal class Day20 : BaseDay
         return new[] { 1000, 2000, 3000 }.Select(x => list[(zero + x) % list.Count].Number).Sum();
     }
 
-    List<Mix> Numbers(long key) => ReadAllLines(true).Select(x => new Mix(long.Parse(x) * key, Guid.NewGuid())).ToList();
+    List<Mix> Numbers(long key) => ReadAllLines(true).Select((x, i) => new Mix(long.Parse(x) * key, i)).ToList();
 
     protected override object Part1() => Solve(Numbers(1), 1);
 
