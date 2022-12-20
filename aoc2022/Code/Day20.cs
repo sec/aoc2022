@@ -17,35 +17,16 @@ internal class Day20 : BaseDay
                     continue;
                 }
 
-                var index = list.IndexOf(item);
-                var oldIndex = index;
+                var oldIndex = list.IndexOf(item);
+                var index = (item.Number + oldIndex) % (list.Count - 1);
 
-                var howMuch = item.Number % (list.Count - 1);
-                var sign = Math.Sign(howMuch);
-
-                howMuch = Math.Abs(howMuch);
-                while (howMuch-- > 0)
+                if (index <= 0)
                 {
-                    if (sign == 1)
-                    {
-                        if (index >= list.Count - 1)
-                        {
-                            index = 0;
-                        }
-                        index++;
-                    }
-                    else
-                    {
-                        if (index <= 0)
-                        {
-                            index = list.Count - 1;
-                        }
-                        index--;
-                    }
+                    index = list.Count - 1 + index;
                 }
 
                 list.RemoveAt(oldIndex);
-                list.Insert(index, item);
+                list.Insert((int) index, item);
             }
         }
     }
