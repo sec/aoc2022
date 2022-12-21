@@ -4,7 +4,9 @@ internal class Day21 : BaseDay
 {
     class Monkeys
     {
-        Dictionary<string, Func<long>> _monkeys = new();
+        readonly Dictionary<string, Func<long>> _monkeys = new();
+        public string Left { get; }
+        public string Right { get; }
 
         public Monkeys(string[] data, bool changeRoot)
         {
@@ -25,9 +27,14 @@ internal class Day21 : BaseDay
                     var left = oper[0];
                     var right = oper[2];
 
-                    if (name == "root" && changeRoot)
+                    if (name == "root")
                     {
-                        oper[1] = "=";
+                        if (changeRoot)
+                        {
+                            oper[1] = "=";
+                        }
+                        Left = left;
+                        Right = right;
                     };
 
                     func = oper[1] switch
@@ -43,6 +50,8 @@ internal class Day21 : BaseDay
                     _monkeys[name] = func;
                 }
             }
+            ArgumentNullException.ThrowIfNullOrEmpty(Left);
+            ArgumentNullException.ThrowIfNullOrEmpty(Right);
         }
 
         public long Yell(string who) => _monkeys[who]();
@@ -50,28 +59,36 @@ internal class Day21 : BaseDay
         public void Human(long i) => _monkeys["humn"] = () => i;
     }
 
-    protected override object Part1()
-    {
-        var system = new Monkeys(ReadAllLines(true), false);
-
-        return system.Yell("root");
-    }
+    protected override object Part1() => new Monkeys(ReadAllLines(true), false).Yell("root");
 
     protected override object Part2()
     {
-        long magic = 0;
+        var system = new Monkeys(ReadAllLines(true), true);
 
-        Parallel.For(0L, long.MaxValue, (i, s) =>
+        var digits = 1;
+        var final = system.Yell(system.Right);
+        var match = final.ToString();
+        var jump = (long) Math.Pow(10, (system.Yell(system.Right) / 1000L).ToString().Length - 1);
+
+        for (var i = 0L; i < long.MaxValue; i += jump)
         {
-            var system = new Monkeys(ReadAllLines(true), true);
             system.Human(i);
-            if (system.Yell("root") == 1)
-            {
-                magic = i;
-                s.Stop();
-            }
-        });
 
-        return magic;
+            var left = system.Yell(system.Left);
+            if (left == final)
+            {
+                return i;
+            }
+
+            if (left.ToString($"d{match.Length}")[..digits] == match[..digits])
+            {
+                digits++;
+                if (jump >= 10)
+                {
+                    jump /= 10;
+                }
+            }
+        }
+        throw new InvalidProgramException();
     }
 }
