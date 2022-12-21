@@ -19,12 +19,10 @@ if (args.Length == 1)
         new Day17(), new Day18(), new Day19(), new Day20(),
         new Day21()
     };
-    var d = int.Parse(args[0]);
+    var d = int.Parse(args[0]) - 1;
 
-    Console.WriteLine($"Running Day {d}");
-
-    days[d - 1].Solve(true);
-    days[d - 1].Solve(false);
+    days[d].Solve(true);
+    days[d].Solve(false);
 }
 else
 {
@@ -37,8 +35,6 @@ else
 
     if (Activator.CreateInstance(t) is BaseDay c)
     {
-        Console.WriteLine($"Running Day {day}");
-
         c.Solve(true);
         c.Solve(false);
     }
