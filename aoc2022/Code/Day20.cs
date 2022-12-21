@@ -2,7 +2,7 @@
 
 internal class Day20 : BaseDay
 {
-    record Mix(long Number, Guid Id);
+    record Mix(long Number, int Id);
 
     static void Cycle(List<Mix> list, int times)
     {
@@ -17,35 +17,16 @@ internal class Day20 : BaseDay
                     continue;
                 }
 
-                var index = list.IndexOf(item);
-                var oldIndex = index;
+                var oldIndex = list.IndexOf(item);
+                var index = (item.Number + oldIndex) % (list.Count - 1);
 
-                var howMuch = item.Number % (list.Count - 1);
-                var sign = Math.Sign(howMuch);
-
-                howMuch = Math.Abs(howMuch);
-                while (howMuch-- > 0)
+                if (index <= 0)
                 {
-                    if (sign == 1)
-                    {
-                        if (index >= list.Count - 1)
-                        {
-                            index = 0;
-                        }
-                        index++;
-                    }
-                    else
-                    {
-                        if (index <= 0)
-                        {
-                            index = list.Count - 1;
-                        }
-                        index--;
-                    }
+                    index = list.Count - 1 + index;
                 }
 
                 list.RemoveAt(oldIndex);
-                list.Insert(index, item);
+                list.Insert((int) index, item);
             }
         }
     }
@@ -59,7 +40,7 @@ internal class Day20 : BaseDay
         return new[] { 1000, 2000, 3000 }.Select(x => list[(zero + x) % list.Count].Number).Sum();
     }
 
-    List<Mix> Numbers(long key) => ReadAllLines(true).Select(x => new Mix(long.Parse(x) * key, Guid.NewGuid())).ToList();
+    List<Mix> Numbers(long key) => ReadAllLines(true).Select((x, i) => new Mix(long.Parse(x) * key, i)).ToList();
 
     protected override object Part1() => Solve(Numbers(1), 1);
 
