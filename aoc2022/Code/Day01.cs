@@ -1,4 +1,4 @@
-﻿namespace aoc2022.code;
+﻿namespace aoc2022.Code;
 
 internal class Day01 : BaseDay
 {
