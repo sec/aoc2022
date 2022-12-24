@@ -17,7 +17,7 @@ if (args.Length == 1)
         new Day09(), new Day10(), new Day11(), new Day12(),
         new Day13(), new Day14(), new Day15(), new Day16(),
         new Day17(), new Day18(), new Day19(), new Day20(),
-        new Day21()
+        new Day21(), new Day22(), new Day23(), new Day24()
     };
     var d = int.Parse(args[0]) - 1;
 
