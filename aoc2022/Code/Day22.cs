@@ -17,8 +17,8 @@ internal class Day22 : BaseDay
 
         public Map(string[] input)
         {
-            _width = input.Select(x => x.Length).Max();
             _height = input.Length - 1;
+            _width = input.Take(_height).Select(x => x.Length).Max();
 
             _path = input.Last();
             _map = new char[_height, _width];
@@ -68,16 +68,27 @@ internal class Day22 : BaseDay
 
         private void Turn(char c)
         {
-            var right = new[] { Face.Right, Face.Down, Face.Left, Face.Up };
-            var left = new[] { Face.Left, Face.Down, Face.Right, Face.Up };
-
             switch (c)
             {
                 case 'R':
-                    _face = right[(int) (_face + 1) % 4];
+                    _face = _face switch
+                    {
+                        Face.Up => Face.Right,
+                        Face.Right => Face.Down,
+                        Face.Down => Face.Left,
+                        Face.Left => Face.Up,
+                        _ => throw new InvalidDataException()
+                    };
                     break;
                 case 'L':
-                    _face = left[(int) (_face + 1) % 4];
+                    _face = _face switch
+                    {
+                        Face.Down => Face.Right,
+                        Face.Left => Face.Down,
+                        Face.Up => Face.Left,
+                        Face.Right => Face.Up,
+                        _ => throw new InvalidDataException()
+                    };
                     break;
             }
         }
@@ -119,6 +130,7 @@ internal class Day22 : BaseDay
         private void Move(int v, bool use3d)
         {
             var (addX, addY) = _moves[(int) _face];
+
             while (v-- > 0)
             {
                 if (CanMove(addX, addY))
@@ -133,6 +145,7 @@ internal class Day22 : BaseDay
                 {
                     var x = -1;
                     var y = -1;
+
                     if (!use3d)
                     {
                         switch (_face)
@@ -149,25 +162,90 @@ internal class Day22 : BaseDay
                                 y = WrapY(x, _face == Face.Down ? 1 : -1);
                                 break;
                         }
+
+                        if (Empty(x, y))
+                        {
+                            _cx = x;
+                            _cy = y;
+                        }
                     }
                     else
                     {
-                        // 3d magic here
-                        x = _cx;
-                        y = _cy;
-
                         var mapping = GetMapping();
 
                         var cubeX = _cx / 50;
                         var cubeY = _cy / 50;
 
-                        var map = mapping[(cubeX, cubeY, _face)];
-                    }
+                        var localX = _cx - cubeX * 50;
+                        var localY = _cy - cubeY * 50;
 
-                    if (Empty(x, y))
-                    {
-                        _cx = x;
-                        _cy = y;
+                        var map = mapping[(cubeX, cubeY, _face)];
+
+                        // from Right
+                        if (_face == Face.Right && map.Dir == Face.Right)
+                        {
+                            x = map.CubeX * 50;
+                            y = map.CubeY * 50 + localY;
+                        }
+                        else if (_face == Face.Right && map.Dir == Face.Left)
+                        {
+                            x = map.CubeX * 50 + 50 - 1;
+                            y = map.CubeY * 50 + 50 - localY;
+                        }
+                        else if (_face == Face.Right && map.Dir == Face.Up)
+                        {
+                            x = map.CubeX * 50 + localY;
+                            y = map.CubeY * 50 + 50 - 1;
+                        }
+                        // from Left
+                        else if (_face == Face.Left && map.Dir == Face.Right)
+                        {
+                            x = map.CubeX * 50;
+                            y = map.CubeY * 50 + 50 - localY;
+                        }
+                        else if (_face == Face.Left && map.Dir == Face.Left)
+                        {
+                            x = map.CubeX * 50 + 50 - 1;
+                            y = map.CubeY * 50 + localY;
+                        }
+                        else if (_face == Face.Left && map.Dir == Face.Down)
+                        {
+                            x = map.CubeX * 50 + localY;
+                            y = map.CubeY * 50;
+                        }
+                        // from Up
+                        else if (_face == Face.Up && map.Dir == Face.Up)
+                        {
+                            x = map.CubeX * 50 + localX;
+                            y = map.CubeY * 50 + 50 - 1;
+                        }
+                        else if (_face == Face.Up && map.Dir == Face.Right)
+                        {
+                            x = map.CubeX * 50;
+                            y = map.CubeY * 50 + localX;
+                        }
+                        // from Down
+                        else if (_face == Face.Down && map.Dir == Face.Down)
+                        {
+                            x = map.CubeX * 50 + localX;
+                            y = map.CubeY * 50;
+                        }
+                        else if (_face == Face.Down && map.Dir == Face.Left)
+                        {
+                            x = map.CubeX * 50 + 50 - 1;
+                            y = map.CubeY * 50 + localX;
+                        }
+                        else
+                        {
+                            throw new InvalidDataException();
+                        }
+
+                        if (Empty(x, y))
+                        {
+                            _cx = x;
+                            _cy = y;
+                            _face = map.Dir;
+                        }
                     }
                 }
             }
@@ -175,7 +253,7 @@ internal class Day22 : BaseDay
 
         public int Password => 1000 * (_cy + 1) + 4 * (_cx + 1) + (int) _face;
 
-        Dictionary<(int CubeX, int CubeY, Face Dir), (int CubeX, int CubeY, Face Dir)> GetMapping()
+        static Dictionary<(int CubeX, int CubeY, Face Dir), (int CubeX, int CubeY, Face Dir)> GetMapping()
         {
             return new()
             {
