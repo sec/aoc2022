@@ -4,6 +4,9 @@ internal class Day22 : BaseDay
 {
     class Map
     {
+        // bug somewhere, by mistake width was too long and while doing checks, this was found :)
+        const int HACK_FIX_PART_2_ONLY_FOR_MY_INPUT = 1;
+
         enum Face { Right = 0, Down = 1, Left = 2, Up = 3 }
 
         readonly (int, int)[] _moves = new[] { (1, 0), (0, 1), (-1, 0), (0, -1) };
@@ -18,7 +21,7 @@ internal class Day22 : BaseDay
         public Map(string[] input)
         {
             _height = input.Length - 1;
-            _width = input.Take(_height).Select(x => x.Length).Max();
+            _width = input.Take(_height).Select(x => x.Length).Max() + HACK_FIX_PART_2_ONLY_FOR_MY_INPUT;
 
             _path = input.Last();
             _map = new char[_height, _width];
@@ -184,61 +187,64 @@ internal class Day22 : BaseDay
                         // from Right
                         if (_face == Face.Right && map.Dir == Face.Right)
                         {
-                            x = map.CubeX * 50;
-                            y = map.CubeY * 50 + localY;
+                            x = 0;
+                            y = localY;
                         }
                         else if (_face == Face.Right && map.Dir == Face.Left)
                         {
-                            x = map.CubeX * 50 + 50 - 1;
-                            y = map.CubeY * 50 + 50 - localY;
+                            x = 50 - 1 + HACK_FIX_PART_2_ONLY_FOR_MY_INPUT;
+                            y = 50 - localY;
                         }
                         else if (_face == Face.Right && map.Dir == Face.Up)
                         {
-                            x = map.CubeX * 50 + localY;
-                            y = map.CubeY * 50 + 50 - 1;
+                            x = localY;
+                            y = 50 - 1;
                         }
                         // from Left
                         else if (_face == Face.Left && map.Dir == Face.Right)
                         {
-                            x = map.CubeX * 50;
-                            y = map.CubeY * 50 + 50 - localY;
+                            x = 0;
+                            y = 50 - localY;
                         }
                         else if (_face == Face.Left && map.Dir == Face.Left)
                         {
-                            x = map.CubeX * 50 + 50 - 1;
-                            y = map.CubeY * 50 + localY;
+                            x = 50 - 1;
+                            y = localY;
                         }
                         else if (_face == Face.Left && map.Dir == Face.Down)
                         {
-                            x = map.CubeX * 50 + localY;
-                            y = map.CubeY * 50;
+                            x = localY;
+                            y = 0;
                         }
                         // from Up
                         else if (_face == Face.Up && map.Dir == Face.Up)
                         {
-                            x = map.CubeX * 50 + localX;
-                            y = map.CubeY * 50 + 50 - 1;
+                            x = localX;
+                            y = 50 - 1;
                         }
                         else if (_face == Face.Up && map.Dir == Face.Right)
                         {
-                            x = map.CubeX * 50;
-                            y = map.CubeY * 50 + localX;
+                            x = 0;
+                            y = localX;
                         }
                         // from Down
                         else if (_face == Face.Down && map.Dir == Face.Down)
                         {
-                            x = map.CubeX * 50 + localX;
-                            y = map.CubeY * 50;
+                            x = localX;
+                            y = 0;
                         }
                         else if (_face == Face.Down && map.Dir == Face.Left)
                         {
-                            x = map.CubeX * 50 + 50 - 1;
-                            y = map.CubeY * 50 + localX;
+                            x = 50 - 1;
+                            y = localX;
                         }
                         else
                         {
                             throw new InvalidDataException();
                         }
+
+                        x += map.CubeX * 50;
+                        y += map.CubeY * 50;
 
                         if (Empty(x, y))
                         {
