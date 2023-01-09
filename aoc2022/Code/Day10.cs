@@ -29,11 +29,11 @@ internal class Day10 : BaseDay
         return x;
     }
 
-    protected override object Part1() => new[] { 20, 60, 100, 140, 180, 220 }.Select(x => x * CPU(x, ReadAllLines())).Sum();
+    protected override object Part1() => new[] { 20, 60, 100, 140, 180, 220 }.Select(x => x * CPU(x, ReadAllLines(true))).Sum();
 
     protected override object Part2()
     {
-        var code = ReadAllLines();
+        var code = ReadAllLines(true);
         var sb = new StringBuilder();
         for (var y = 0; y < 6; y++)
         {

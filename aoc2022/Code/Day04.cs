@@ -43,7 +43,7 @@ internal class Day04 : BaseDay
         }
     }
 
-    int Solve(Func<Row, bool> check) => ReadAllLinesSplit(",").Select(x => new Row(x)).Count(check);
+    int Solve(Func<Row, bool> check) => ReadAllLinesSplit(",", true).Select(x => new Row(x)).Count(check);
 
     protected override object Part1() => Solve(row => row.L.Fully(row.R) || row.R.Fully(row.L));
 

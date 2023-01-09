@@ -43,7 +43,7 @@ internal class Day05 : BaseDay
     string Operate(bool isCrateMover9001)
     {
         var cranes = new Crane[9];
-        foreach (var line in ReadAllLines())
+        foreach (var line in ReadAllLines(true))
         {
             if (line.Contains('['))
             {

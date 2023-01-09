@@ -79,7 +79,7 @@ internal partial class Day15 : BaseDay
         var regexp = ExtractXY();
         var sensors = new List<Sensor>();
 
-        foreach (var line in ReadAllLinesSplit(":"))
+        foreach (var line in ReadAllLinesSplit(":", true))
         {
             var s = regexp.Match(line[0]);
             var b = regexp.Match(line[1]);

@@ -16,7 +16,7 @@ internal class Day09 : BaseDay
     readonly Point[] UpDownLeftRight = new[] { new Point(0, -1), new Point(0, 1), new Point(1, 0), new Point(-1, 0), };
     readonly Point[] Corners = new[] { new Point(1, 1), new Point(1, -1), new Point(-1, -1), new Point(-1, 1), };
 
-    IEnumerable<Move> Moves => ReadAllLinesSplit(" ").Select(x => new Move(x[0] switch
+    IEnumerable<Move> Moves => ReadAllLinesSplit(" ", true).Select(x => new Move(x[0] switch
     {
         "U" => UpDownLeftRight[0],
         "D" => UpDownLeftRight[1],

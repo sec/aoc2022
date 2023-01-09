@@ -12,13 +12,13 @@ internal class Day03 : BaseDay
         return left.Where(right.Contains).Distinct().ToList();
     }
 
-    protected override object Part1() => ReadAllLines().Sum(x => GetCommon(x).Sum(GetPriority));
+    protected override object Part1() => ReadAllLines(true).Sum(x => GetCommon(x).Sum(GetPriority));
 
     protected override object Part2()
     {
         var sum = 0;
 
-        foreach (var rucksacks in ReadAllLines().Chunk(3))
+        foreach (var rucksacks in ReadAllLines(true).Chunk(3))
         {
             var a = rucksacks[0];
             var b = rucksacks[1];

@@ -5,7 +5,7 @@ internal class Day22 : BaseDay
     class Map
     {
         // bug somewhere, by mistake width was too long and while doing checks, this was found :)
-        const int HACK_FIX_PART_2_ONLY_FOR_MY_INPUT = 1;
+        const int HACK_FIX_PART_2_ONLY_FOR_MY_INPUT = 0;
 
         enum Face { Right = 0, Down = 1, Left = 2, Up = 3 }
 
@@ -193,7 +193,7 @@ internal class Day22 : BaseDay
                         else if (_face == Face.Right && map.Dir == Face.Left)
                         {
                             x = 50 - 1 + HACK_FIX_PART_2_ONLY_FOR_MY_INPUT;
-                            y = 50 - localY;
+                            y = 50 - 1 - localY;
                         }
                         else if (_face == Face.Right && map.Dir == Face.Up)
                         {
@@ -204,7 +204,7 @@ internal class Day22 : BaseDay
                         else if (_face == Face.Left && map.Dir == Face.Right)
                         {
                             x = 0;
-                            y = 50 - localY;
+                            y = 50 - 1 - localY;
                         }
                         else if (_face == Face.Left && map.Dir == Face.Left)
                         {
@@ -242,6 +242,24 @@ internal class Day22 : BaseDay
                         {
                             throw new InvalidDataException();
                         }
+
+                        switch (map.Dir)
+                        {
+                            case Face.Left:
+                                x = 50 - 1;
+                                break;
+                            case Face.Right:
+                                x = 0;
+                                break;
+                            case Face.Up:
+                                y = 50 - 1;
+                                break;
+                            case Face.Down:
+                                y = 0;
+                                break;
+
+                        }
+
 
                         x += map.CubeX * 50;
                         y += map.CubeY * 50;

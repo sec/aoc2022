@@ -52,7 +52,7 @@ internal class Day02 : BaseDay
         };
     }
 
-    protected override object Part1() => ReadAllLines().Select(Fixed).Sum();
+    protected override object Part1() => ReadAllLines(true).Select(Fixed).Sum();
 
-    protected override object Part2() => ReadAllLines().Select(x => Fixed(Adjust(x))).Sum();
+    protected override object Part2() => ReadAllLines(true).Select(x => Fixed(Adjust(x))).Sum();
 }
